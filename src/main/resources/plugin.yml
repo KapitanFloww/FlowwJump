@@ -1,0 +1,9 @@
+name: floww-jump
+version: '0.1.0-SNAPSHOT'
+main: com.github.kapitanfloww.jump.FlowwJump
+api-version: '1.21'
+prefix: FlowwJump
+load: STARTUP
+authors: [ Kapitan_Floww ]
+description: Plugin to create parcours for Paper servers
+website: https://github.com/KapitanFloww/floww-jump
