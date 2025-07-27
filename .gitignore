@@ -24,3 +24,6 @@ hs_err_pid*
 replay_pid*
 .gradle
 /.idea/
+/pg-data/
+/run/
+/build/
