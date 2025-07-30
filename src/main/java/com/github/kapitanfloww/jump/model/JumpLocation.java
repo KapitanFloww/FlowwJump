@@ -25,8 +25,6 @@ public class JumpLocation {
 
     private UUID id;
 
-    private Type type;
-
     private BlockType blockType;
 
     // Coordinates
@@ -35,26 +33,18 @@ public class JumpLocation {
     private Integer y;
     private Integer z;
 
-    public static JumpLocation fromBlock(Block block, Type type) {
+    public static JumpLocation fromBlock(Block block) {
         return new JumpLocation()
                 .withId(UUID.randomUUID())
                 .withX(block.getX())
                 .withY(block.getY())
                 .withZ(block.getZ())
-                .withType(type)
                 .withBlockType(determineType(block));
     }
 
     public enum BlockType {
         PRESSURE_PLATE,
         BUTTON
-    }
-
-    public enum Type {
-        START,
-        CHECKPOINT,
-        FINISH,
-        RESET
     }
 
     private static JumpLocation.BlockType determineType(Block block) {

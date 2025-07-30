@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump;
 
 import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.model.JumpLocation;
+import com.github.kapitanfloww.jump.model.JumpLocationType;
 import com.github.kapitanfloww.jump.persistence.JumpRepository;
 import lombok.extern.java.Log;
 import org.bukkit.block.Block;
@@ -30,16 +31,16 @@ public class JumpService {
         final var jump = new Jump()
                 .withId(UUID.randomUUID())
                 .withName(jumpName);
-        final var startLocation = JumpLocation.fromBlock(start, JumpLocation.Type.START);
-        jump.addCheckpoints(startLocation);
+        final var startLocation = JumpLocation.fromBlock(start);
+        jump.setStart(startLocation);
 
         repository.save(jump);
         log.info("Created jump %s".formatted(jump));
     }
 
-    public void addLocationToJump(String jumpName, JumpLocation.Type type, Block location) {
+    public void addLocationToJump(String jumpName, JumpLocationType type, Block location) {
         final var jump = getJump(jumpName);
-        final var newLocation = JumpLocation.fromBlock(location, type);
+        final var newLocation = JumpLocation.fromBlock(location);
         switch (type) {
             case START -> jump.setStart(newLocation); // can only have one start
             case FINISH -> jump.setFinish(newLocation); // can only have one finish
