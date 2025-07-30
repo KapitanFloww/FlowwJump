@@ -41,6 +41,7 @@ public final class FlowwJump extends JavaPlugin {
                     sender.sendMessage("--- Jump Help ---");
                     sender.sendMessage("/jump create <name>                        - Creates a new jump with the given name. With start location on target block");
                     sender.sendMessage("/jump list                                 - Lists all jumps");
+                    sender.sendMessage("/jump info <name>                          - Prints information about the jump");
                     sender.sendMessage("/jump delete <name>                        - Removes jump");
                     sender.sendMessage("/jump set <start|finish|reset> <name>      - Sets the start, finish or reset position of a jump");
                     sender.sendMessage("/jump checkpoints <add|list|delete> <name> - Adds, lists or removes checkpoints from a jump");
