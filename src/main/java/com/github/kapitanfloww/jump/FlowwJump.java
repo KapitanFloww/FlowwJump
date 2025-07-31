@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump;
 
 import com.github.kapitanfloww.jump.listeners.ButtonClickListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
+import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerStartJumpListener;
 import com.github.kapitanfloww.jump.model.JumpLocation;
 import com.github.kapitanfloww.jump.model.JumpLocationType;
@@ -42,6 +43,7 @@ public final class FlowwJump extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ButtonClickListener(getServer().getPluginManager(), jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerStartJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(jumpPlayerService, jumpLocationService), this);
+        getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(), this);
     }
 
     @Override
