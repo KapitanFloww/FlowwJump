@@ -3,7 +3,8 @@ package com.github.kapitanfloww.jump.listeners;
 import com.github.kapitanfloww.jump.events.PlayerFinishJumpEvent;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,7 +41,7 @@ public class PlayerFinishJumpListener implements Listener {
         final var resetLocation = jumpLocationService.toLocation(jump.getReset());
         player.teleport(resetLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-        player.sendMessage(ChatColor.GREEN + "Congratulations, you've mastered jump %s!".formatted(jump.getName()));
+        player.sendMessage(Component.text("Congratulations, you've mastered jump ", NamedTextColor.GREEN).append(Component.text(jump.getName(), NamedTextColor.GOLD)));
         jumpPlayerService.unregisterPlayer(player);
     }
 }

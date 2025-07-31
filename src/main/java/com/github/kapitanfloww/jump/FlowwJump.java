@@ -17,8 +17,8 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -56,22 +56,21 @@ public final class FlowwJump extends JavaPlugin {
         var root = Commands.literal("jump")
                 .executes(ctx -> {
                     final var sender = ctx.getSource().getSender();
-                    sender.sendMessage(ChatColor.YELLOW + "--- Jump Help ---");
-
-                    sender.sendMessage(ChatColor.YELLOW + "/jump cancel");
-                    sender.sendMessage(ChatColor.GRAY + "Cancel your current current jump");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump create <name>");
-                    sender.sendMessage(ChatColor.GRAY + "Creates a new jump with the given name. With start location on target block");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump list");
-                    sender.sendMessage(ChatColor.GRAY + "Lists all jumps");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump info <name>");
-                    sender.sendMessage(ChatColor.GRAY + "Prints information about the jump");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump delete <name>");
-                    sender.sendMessage(ChatColor.GRAY + "Removes jump");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump set <start|finish|reset> <name>");
-                    sender.sendMessage(ChatColor.GRAY + "Sets the start, finish or reset position of a jump");
-                    sender.sendMessage(ChatColor.YELLOW + "/jump checkpoints <add|list|delete> <name> - Adds, lists or removes checkpoints from a jump");
-                    sender.sendMessage(ChatColor.GRAY + "Adds, lists or removes checkpoints from a jump");
+                    sender.sendMessage(Component.text("--- Jump Help ---", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("/jump cancel", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Cancel your current current jump", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump create <name>", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Creates a new jump with the given name. With start location on target block", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump list", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Lists all jumps", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump info <name>", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Prints information about the jump", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump delete <name>", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Removes jump", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump set <start|finish|reset> <name>", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Sets the start, finish or reset position of a jump", NamedTextColor.GRAY));
+                    sender.sendMessage(Component.text("/jump checkpoints <add|list|delete> <name> - Adds, lists or removes checkpoints from a jump", NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("Adds, lists or removes checkpoints from a jump", NamedTextColor.GRAY));
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(Commands.literal("cancel")
@@ -79,7 +78,7 @@ public final class FlowwJump extends JavaPlugin {
                         .executes(ctx -> {
                             final var player = (Player) ctx.getSource().getSender();
                             jumpPlayerService.unregisterPlayer(player);
-                            player.sendMessage(ChatColor.GRAY + "Canceled your current jump");
+                            player.sendMessage(Component.text("Cancelled current jump", NamedTextColor.YELLOW));
                             return Command.SINGLE_SUCCESS;
                         })
                 )
@@ -96,7 +95,7 @@ public final class FlowwJump extends JavaPlugin {
                                     final var player = (Player) ctx.getSource().getSender();
                                     final var targetBlock = player.getTargetBlockExact(10);
                                     jumpService.createJump(jumpName, targetBlock);
-                                    player.sendMessage(ChatColor.YELLOW + "Created jump \"%s\"".formatted(jumpName));
+                                    player.sendMessage(Component.text("Created jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -112,11 +111,11 @@ public final class FlowwJump extends JavaPlugin {
                                     final var sender = ctx.getSource().getSender();
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     final var jump = jumpService.getJump(jumpName);
-                                    sender.sendMessage(ChatColor.YELLOW + "Info about jump \"%s\"".formatted(jumpName));
-                                    sender.sendMessage(Component.text(ChatColor.GRAY + "Start: ").append(jump.getStart() != null ? jump.getStart().toClickableLink() : Component.text("-- Start not set --")));
-                                    sender.sendMessage(Component.text(ChatColor.GRAY + "Finish: ").append(jump.getFinish() != null ? jump.getFinish().toClickableLink() : Component.text("-- Finish not set --")));
-                                    sender.sendMessage(Component.text(ChatColor.GRAY + "Reset: ").append(jump.getReset() != null ? jump.getReset().toClickableLink() : Component.text("-- Reset not set --")));
-                                    sender.sendMessage(ChatColor.YELLOW + "Checkpoints:");
+                                    sender.sendMessage(Component.text("Info about jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
+                                    sender.sendMessage(Component.text("Start: ", NamedTextColor.GRAY).append(jump.getStart() != null ? jump.getStart().toClickableLink() : Component.text("-- Start not set --")));
+                                    sender.sendMessage(Component.text("Finish: ", NamedTextColor.GRAY).append(jump.getFinish() != null ? jump.getFinish().toClickableLink() : Component.text("-- Finish not set --")));
+                                    sender.sendMessage(Component.text("Reset: ", NamedTextColor.GRAY).append(jump.getReset() != null ? jump.getReset().toClickableLink() : Component.text("-- Reset not set --")));
+                                    sender.sendMessage(Component.text("Checkpoints:", NamedTextColor.YELLOW));
                                     jump.getCheckpoints().stream().map(JumpLocation::toClickableLink).forEach(sender::sendMessage);
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -126,8 +125,16 @@ public final class FlowwJump extends JavaPlugin {
                         .executes(ctx -> {
                             final var sender = ctx.getSource().getSender();
                             final var jumps = jumpService.getAll();
-                            sender.sendMessage(ChatColor.YELLOW + "The following jumps are registered:");
-                            jumps.forEach(it -> sender.sendMessage(Component.text(ChatColor.GRAY + "Jump " + ChatColor.YELLOW + it.getName() + ChatColor.GRAY + " starting at ").append(it.getStart().toClickableLink())));
+                            sender.sendMessage(Component.text("The following jumps are known: ", NamedTextColor.YELLOW));
+                            jumps.forEach(it -> sender.sendMessage(
+                                    Component.text("Jump ", NamedTextColor.YELLOW).append(
+                                            Component.text(it.getName(), NamedTextColor.GOLD).append(
+                                                    Component.text(" starting at ", NamedTextColor.YELLOW).append(
+                                                            it.getStart().toClickableLink()
+                                                    )
+                                            )
+                                    )
+                            ));
                             return Command.SINGLE_SUCCESS;
                         })
                 )
@@ -143,7 +150,9 @@ public final class FlowwJump extends JavaPlugin {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     jumpService.deleteJump(jumpName);
                                     final var sender = ctx.getSource().getSender();
-                                    sender.sendMessage(ChatColor.YELLOW + "Deleted jump %s".formatted(jumpName));
+                                    sender.sendMessage(Component
+                                            .text("Deleted jump ", NamedTextColor.YELLOW)
+                                            .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -162,7 +171,9 @@ public final class FlowwJump extends JavaPlugin {
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.START, targetBlock);
-                                            player.sendMessage(ChatColor.YELLOW + "Set start for jump %s".formatted(jumpName));
+                                            player.sendMessage(Component
+                                                    .text("Set start-location for jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 ))
@@ -179,7 +190,9 @@ public final class FlowwJump extends JavaPlugin {
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.FINISH, targetBlock);
-                                            player.sendMessage(ChatColor.YELLOW + "Set finish for jump %s".formatted(jumpName));
+                                            player.sendMessage(Component
+                                                    .text("Set finish-location for jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -197,7 +210,9 @@ public final class FlowwJump extends JavaPlugin {
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.RESET, targetBlock);
-                                            player.sendMessage(ChatColor.YELLOW + "Set reset-location for jump %s".formatted(jumpName));
+                                            player.sendMessage(Component
+                                                    .text("Set reset-location for jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -217,7 +232,9 @@ public final class FlowwJump extends JavaPlugin {
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.CHECKPOINT, targetBlock);
-                                            player.sendMessage(ChatColor.YELLOW + "Added checkpoint to jump %s".formatted(jumpName));
+                                            player.sendMessage(Component
+                                                    .text("Added checkpoint to jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -233,7 +250,11 @@ public final class FlowwJump extends JavaPlugin {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var sender = ctx.getSource().getSender();
                                             final var checkPoints = jumpService.getCheckpointsForJump(jumpName);
-                                            sender.sendMessage(ChatColor.YELLOW + "Checkpoints for jump %s".formatted(jumpName));
+                                            sender.sendMessage(Component
+                                                    .text("Known checkpoints for jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD))
+                                                    .append(Component.text(":", NamedTextColor.YELLOW))
+                                            );
                                             checkPoints.forEach(it -> sender.sendMessage(it.toClickableLink()));
                                             return Command.SINGLE_SUCCESS;
                                         })
@@ -249,10 +270,12 @@ public final class FlowwJump extends JavaPlugin {
                                         .requires(source -> source.getSender() instanceof Player)
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
-                                            final var player = (Player) ctx.getSource().getSender();
+                                            final var player = (Player) ctx.getSource().getSender()
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.removeCheckpointForJump(jumpName, targetBlock);
-                                            player.sendMessage(ChatColor.YELLOW + "Removed checkpoint from jump %s".formatted(jumpName));
+                                            player.sendMessage(Component
+                                                    .text("Deleted checkpoint from jump ", NamedTextColor.YELLOW)
+                                                    .append(Component.text(jumpName, NamedTextColor.GOLD)));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )

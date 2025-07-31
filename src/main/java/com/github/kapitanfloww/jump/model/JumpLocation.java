@@ -9,7 +9,7 @@ import lombok.ToString;
 import lombok.With;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 
@@ -39,7 +39,7 @@ public class JumpLocation {
 
     public Component toClickableLink() {
         final var tpEvent = ClickEvent.runCommand("tp %s %s %s".formatted(x, y + 0.5, z));
-        return Component.text(ChatColor.YELLOW + "[%s, %s, %s]".formatted(x, y, z)).clickEvent(tpEvent);
+        return Component.text("[%s, %s, %s]".formatted(x, y, z), NamedTextColor.GOLD).clickEvent(tpEvent);
     }
 
     public boolean matches(Block block) {
