@@ -27,7 +27,6 @@ public class PlayerStartJumpListener implements Listener {
         final var currentPlayerJump = jumpPlayerService.getCurrentJumpFor(player);
         if (currentPlayerJump != null) {
             if (currentPlayerJump.getId().equals(jump.getId())) {
-                player.sendMessage(Component.text("You are already doing this jump.", NamedTextColor.RED));
                 return;
             }
             player.sendMessage(Component.text("You are already doing the jump %s. Please finish this jump before starting a new one or cancel your current jump with /jump cancel.".formatted(currentPlayerJump.getName()), NamedTextColor.RED));

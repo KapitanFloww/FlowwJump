@@ -1,6 +1,6 @@
 package com.github.kapitanfloww.jump;
 
-import com.github.kapitanfloww.jump.listeners.ButtonClickListener;
+import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerStartJumpListener;
@@ -40,7 +40,7 @@ public final class FlowwJump extends JavaPlugin {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(commandTree));
 
         // Register listeners
-        getServer().getPluginManager().registerEvents(new ButtonClickListener(getServer().getPluginManager(), jumpLocationService), this);
+        getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(getServer().getPluginManager(), jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerStartJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(jumpPlayerService, jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(), this);
