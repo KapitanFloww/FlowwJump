@@ -1,4 +1,4 @@
-package com.github.kapitanfloww.jump;
+package com.github.kapitanfloww.jump.service;
 
 import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.model.JumpLocation;

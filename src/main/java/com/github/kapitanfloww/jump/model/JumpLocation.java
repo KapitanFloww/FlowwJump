@@ -35,10 +35,19 @@ public class JumpLocation {
     private Integer x;
     private Integer y;
     private Integer z;
+    private String worldName;
 
     public Component toClickableLink() {
         final var tpEvent = ClickEvent.runCommand("tp %s %s %s".formatted(x, y + 0.5, z));
         return Component.text(ChatColor.YELLOW + "[%s, %s, %s]".formatted(x, y, z)).clickEvent(tpEvent);
+    }
+
+    public boolean matches(Block block) {
+        return block != null
+                && block.getX() == this.x
+                && block.getY() == this.y
+                && block.getZ() == this.z
+                && block.getWorld().getName().equals(worldName);
     }
 
     public static JumpLocation fromBlock(Block block) {
@@ -47,6 +56,7 @@ public class JumpLocation {
                 .withX(block.getX())
                 .withY(block.getY())
                 .withZ(block.getZ())
+                .withWorldName(block.getWorld().getName())
                 .withBlockType(determineType(block));
     }
 
