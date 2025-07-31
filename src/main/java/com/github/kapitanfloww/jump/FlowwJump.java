@@ -83,7 +83,7 @@ public final class FlowwJump extends JavaPlugin {
                                 .executes(ctx -> {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     final var player = (Player) ctx.getSource().getSender();
-                                    final var targetBlock = player.getTargetBlock(null, 10);
+                                    final var targetBlock = player.getTargetBlockExact(10);
                                     jumpService.createJump(jumpName, targetBlock);
                                     player.sendMessage(ChatColor.YELLOW + "Created jump \"%s\"".formatted(jumpName));
                                     return Command.SINGLE_SUCCESS;
@@ -149,7 +149,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
-                                            final var targetBlock = player.getTargetBlock(null, 10);
+                                            final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.START, targetBlock);
                                             player.sendMessage(ChatColor.YELLOW + "Set start for jump %s".formatted(jumpName));
                                             return Command.SINGLE_SUCCESS;
@@ -166,7 +166,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
-                                            final var targetBlock = player.getTargetBlock(null, 10);
+                                            final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.FINISH, targetBlock);
                                             player.sendMessage(ChatColor.YELLOW + "Set finish for jump %s".formatted(jumpName));
                                             return Command.SINGLE_SUCCESS;
@@ -184,7 +184,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
-                                            final var targetBlock = player.getTargetBlock(null, 10);
+                                            final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.RESET, targetBlock);
                                             player.sendMessage(ChatColor.YELLOW + "Set reset-location for jump %s".formatted(jumpName));
                                             return Command.SINGLE_SUCCESS;
@@ -204,7 +204,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
-                                            final var targetBlock = player.getTargetBlock(null, 10);
+                                            final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.CHECKPOINT, targetBlock);
                                             player.sendMessage(ChatColor.YELLOW + "Added checkpoint to jump %s".formatted(jumpName));
                                             return Command.SINGLE_SUCCESS;
@@ -239,7 +239,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
-                                            final var targetBlock = player.getTargetBlock(null, 10);
+                                            final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.removeCheckpointForJump(jumpName, targetBlock);
                                             player.sendMessage(ChatColor.YELLOW + "Removed checkpoint from jump %s".formatted(jumpName));
                                             return Command.SINGLE_SUCCESS;
