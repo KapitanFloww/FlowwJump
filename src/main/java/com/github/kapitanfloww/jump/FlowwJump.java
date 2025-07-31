@@ -58,6 +58,8 @@ public final class FlowwJump extends JavaPlugin {
                     final var sender = ctx.getSource().getSender();
                     sender.sendMessage(ChatColor.YELLOW + "--- Jump Help ---");
 
+                    sender.sendMessage(ChatColor.YELLOW + "/jump cancel");
+                    sender.sendMessage(ChatColor.GRAY + "Cancel your current current jump");
                     sender.sendMessage(ChatColor.YELLOW + "/jump create <name>");
                     sender.sendMessage(ChatColor.GRAY + "Creates a new jump with the given name. With start location on target block");
                     sender.sendMessage(ChatColor.YELLOW + "/jump list");
@@ -72,6 +74,15 @@ public final class FlowwJump extends JavaPlugin {
                     sender.sendMessage(ChatColor.GRAY + "Adds, lists or removes checkpoints from a jump");
                     return Command.SINGLE_SUCCESS;
                 })
+                .then(Commands.literal("cancel")
+                        .requires(source -> source.getSender() instanceof Player)
+                        .executes(ctx -> {
+                            final var player = (Player) ctx.getSource().getSender();
+                            jumpPlayerService.unregisterPlayer(player);
+                            player.sendMessage(ChatColor.GRAY + "Canceled your current jump");
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
                 .then(Commands.literal("create")
                         .then(Commands.argument("name", StringArgumentType.string())
                                 .requires(source -> source.getSender() instanceof Player)
