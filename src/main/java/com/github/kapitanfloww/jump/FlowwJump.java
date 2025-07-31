@@ -270,7 +270,7 @@ public final class FlowwJump extends JavaPlugin {
                                         .requires(source -> source.getSender() instanceof Player)
                                         .executes(ctx -> {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
-                                            final var player = (Player) ctx.getSource().getSender()
+                                            final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
                                             jumpService.removeCheckpointForJump(jumpName, targetBlock);
                                             player.sendMessage(Component
