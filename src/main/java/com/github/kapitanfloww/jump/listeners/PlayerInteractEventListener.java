@@ -4,6 +4,8 @@ import com.github.kapitanfloww.jump.events.PlayerFinishJumpEvent;
 import com.github.kapitanfloww.jump.events.PlayerReachesCheckpointJumpEvent;
 import com.github.kapitanfloww.jump.events.PlayerStartJumpEvent;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Tag;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,8 +44,14 @@ public class PlayerInteractEventListener implements Listener {
             return; // Not part of a jump
         }
 
-        // Call event based on location type
+        // Check if jump is set up correctly
         final var jump = jumpPair.getRight();
+        if (!jump.isSetupComplete()) {
+            event.getPlayer().sendMessage(Component.text("This jump is not fully set up yet. Please inspect with /jump info %s".formatted(jump.getName()), NamedTextColor.RED));
+            return;
+        }
+
+        // Call event based on location type
         final var type = jumpPair.getLeft();
         switch (type) {
             case START -> pluginManager.callEvent(new PlayerStartJumpEvent(jump, event.getPlayer())); // start the jump

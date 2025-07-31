@@ -1,6 +1,7 @@
 package com.github.kapitanfloww.jump.listeners;
 
 import com.github.kapitanfloww.jump.events.PlayerStartJumpEvent;
+import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

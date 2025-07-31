@@ -19,6 +19,8 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -94,6 +96,12 @@ public final class FlowwJump extends JavaPlugin {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     final var player = (Player) ctx.getSource().getSender();
                                     final var targetBlock = player.getTargetBlockExact(10);
+
+                                    if (isInvalidMaterial(targetBlock)) {
+                                        player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
+
                                     jumpService.createJump(jumpName, targetBlock);
                                     player.sendMessage(Component.text("Created jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
                                     return Command.SINGLE_SUCCESS;
@@ -112,11 +120,11 @@ public final class FlowwJump extends JavaPlugin {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     final var jump = jumpService.getJump(jumpName);
                                     sender.sendMessage(Component.text("Info about jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
-                                    sender.sendMessage(Component.text("Start: ", NamedTextColor.GRAY).append(jump.getStart() != null ? jump.getStart().toClickableLink() : Component.text("-- Start not set --")));
-                                    sender.sendMessage(Component.text("Finish: ", NamedTextColor.GRAY).append(jump.getFinish() != null ? jump.getFinish().toClickableLink() : Component.text("-- Finish not set --")));
-                                    sender.sendMessage(Component.text("Reset: ", NamedTextColor.GRAY).append(jump.getReset() != null ? jump.getReset().toClickableLink() : Component.text("-- Reset not set --")));
+                                    sender.sendMessage(Component.text("Start: ", NamedTextColor.GRAY).append(jump.getStart() != null ? jump.getStart().toTeleportComponent() : Component.text("-- Start not set --")));
+                                    sender.sendMessage(Component.text("Finish: ", NamedTextColor.GRAY).append(jump.getFinish() != null ? jump.getFinish().toTeleportComponent() : Component.text("-- Finish not set --")));
+                                    sender.sendMessage(Component.text("Reset: ", NamedTextColor.GRAY).append(jump.getReset() != null ? jump.getReset().toTeleportComponent() : Component.text("-- Reset not set --")));
                                     sender.sendMessage(Component.text("Checkpoints:", NamedTextColor.YELLOW));
-                                    jump.getCheckpoints().stream().map(JumpLocation::toClickableLink).forEach(sender::sendMessage);
+                                    jump.getCheckpoints().stream().map(JumpLocation::toTeleportComponent).forEach(sender::sendMessage);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -130,7 +138,7 @@ public final class FlowwJump extends JavaPlugin {
                                     Component.text("Jump ", NamedTextColor.YELLOW).append(
                                             Component.text(it.getName(), NamedTextColor.GOLD).append(
                                                     Component.text(" starting at ", NamedTextColor.YELLOW).append(
-                                                            it.getStart().toClickableLink()
+                                                            it.getStart().toTeleportComponent()
                                                     )
                                             )
                                     )
@@ -170,6 +178,12 @@ public final class FlowwJump extends JavaPlugin {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
+
+                                            if (isInvalidMaterial(targetBlock)) {
+                                                player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
+                                                return Command.SINGLE_SUCCESS;
+                                            }
+
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.START, targetBlock);
                                             player.sendMessage(Component
                                                     .text("Set start-location for jump ", NamedTextColor.YELLOW)
@@ -189,6 +203,12 @@ public final class FlowwJump extends JavaPlugin {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
+
+                                            if (isInvalidMaterial(targetBlock)) {
+                                                player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
+                                                return Command.SINGLE_SUCCESS;
+                                            }
+
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.FINISH, targetBlock);
                                             player.sendMessage(Component
                                                     .text("Set finish-location for jump ", NamedTextColor.YELLOW)
@@ -231,6 +251,12 @@ public final class FlowwJump extends JavaPlugin {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
+
+                                            if (isInvalidMaterial(targetBlock)) {
+                                                player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
+                                                return Command.SINGLE_SUCCESS;
+                                            }
+
                                             jumpService.addLocationToJump(jumpName, JumpLocationType.CHECKPOINT, targetBlock);
                                             player.sendMessage(Component
                                                     .text("Added checkpoint to jump ", NamedTextColor.YELLOW)
@@ -255,7 +281,7 @@ public final class FlowwJump extends JavaPlugin {
                                                     .append(Component.text(jumpName, NamedTextColor.GOLD))
                                                     .append(Component.text(":", NamedTextColor.YELLOW))
                                             );
-                                            checkPoints.forEach(it -> sender.sendMessage(it.toClickableLink()));
+                                            checkPoints.forEach(it -> sender.sendMessage(it.toTeleportComponent()));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -272,6 +298,12 @@ public final class FlowwJump extends JavaPlugin {
                                             final var jumpName = StringArgumentType.getString(ctx, "name");
                                             final var player = (Player) ctx.getSource().getSender();
                                             final var targetBlock = player.getTargetBlockExact(10);
+
+                                            if (isInvalidMaterial(targetBlock)) {
+                                                player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
+                                                return Command.SINGLE_SUCCESS;
+                                            }
+
                                             jumpService.removeCheckpointForJump(jumpName, targetBlock);
                                             player.sendMessage(Component
                                                     .text("Deleted checkpoint from jump ", NamedTextColor.YELLOW)
@@ -283,5 +315,14 @@ public final class FlowwJump extends JavaPlugin {
                 )
                 .build();
         return root;
+    }
+
+    private static boolean isInvalidMaterial(Block targetBlock) {
+        // Verify target block is not null
+        if (targetBlock == null) {
+            return true;
+        }
+        // Verify target block is either pressure plate or button
+        return !Tag.BUTTONS.isTagged(targetBlock.getType()) && !Tag.PRESSURE_PLATES.isTagged(targetBlock.getType());
     }
 }

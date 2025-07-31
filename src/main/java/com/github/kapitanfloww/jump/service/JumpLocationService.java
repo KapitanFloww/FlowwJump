@@ -39,6 +39,6 @@ public class JumpLocationService {
     }
 
     public Location toLocation(JumpLocation jumpLocation) {
-        return new Location(worldResolver.getWorld(jumpLocation.getWorldName()), jumpLocation.getX(), jumpLocation.getY(), jumpLocation.getZ());
+        return new Location(worldResolver.getWorld(jumpLocation.getWorldName()), jumpLocation.getX(), jumpLocation.getY() + 1, jumpLocation.getZ());
     }
 }

@@ -37,4 +37,11 @@ public class Jump {
     public void addCheckpoints(JumpLocation location) {
         checkpoints.add(location);
     }
+
+    public boolean isSetupComplete() {
+        return getStart() != null
+                && getFinish() != null
+                && getReset() != null
+                && getName() != null;
+    }
 }

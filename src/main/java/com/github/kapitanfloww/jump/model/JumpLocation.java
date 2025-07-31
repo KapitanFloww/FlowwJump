@@ -10,12 +10,9 @@ import lombok.With;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @With
 @Getter
@@ -28,8 +25,6 @@ public class JumpLocation {
 
     private UUID id;
 
-    private BlockType blockType;
-
     // Coordinates
 
     private Integer x;
@@ -37,7 +32,7 @@ public class JumpLocation {
     private Integer z;
     private String worldName;
 
-    public Component toClickableLink() {
+    public Component toTeleportComponent() {
         final var tpEvent = ClickEvent.runCommand("tp %s %s %s".formatted(x, y + 0.5, z));
         return Component.text("[%s, %s, %s]".formatted(x, y, z), NamedTextColor.GOLD).clickEvent(tpEvent);
     }
@@ -56,25 +51,6 @@ public class JumpLocation {
                 .withX(block.getX())
                 .withY(block.getY())
                 .withZ(block.getZ())
-                .withWorldName(block.getWorld().getName())
-                .withBlockType(determineType(block));
-    }
-
-    public enum BlockType {
-        PRESSURE_PLATE,
-        BUTTON
-    }
-
-    private static JumpLocation.BlockType determineType(Block block) {
-        final var material = block.getType();
-        if (Tag.PRESSURE_PLATES.getValues().contains(material)) {
-            return BlockType.PRESSURE_PLATE;
-        }
-        if (Tag.BUTTONS.getValues().contains(material)) {
-            return BlockType.BUTTON;
-        }
-        throw new IllegalArgumentException("Cannot add location for material %s. Supported materials: %s"
-                .formatted(block.getType(), Stream.of(Tag.PRESSURE_PLATES.getValues(), Tag.BUTTONS.getValues())
-                        .collect(Collectors.toSet())));
+                .withWorldName(block.getWorld().getName());
     }
 }
