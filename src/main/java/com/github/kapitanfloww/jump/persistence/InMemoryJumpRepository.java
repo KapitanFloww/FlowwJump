@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InMemoryJumpRepository implements JumpRepository {
 
@@ -34,5 +35,10 @@ public class InMemoryJumpRepository implements JumpRepository {
     @Override
     public void delete(Jump jump) {
         jumps.remove(jump);
+    }
+
+    @Override
+    public Set<String> findAllJumpNames() {
+        return findAll().stream().map(Jump::getName).collect(Collectors.toSet());
     }
 }

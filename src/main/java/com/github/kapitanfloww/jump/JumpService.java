@@ -86,4 +86,8 @@ public class JumpService {
         final var jump = getJump(jumpName);
         return jump.getCheckpoints();
     }
+
+    public Set<String> getJumpNames() {
+        return repository.findAllJumpNames();
+    }
 }

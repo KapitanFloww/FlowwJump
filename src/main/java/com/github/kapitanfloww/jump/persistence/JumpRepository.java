@@ -14,4 +14,6 @@ public interface JumpRepository {
     Set<Jump> findAll();
 
     void delete(Jump jump);
+
+    Set<String> findAllJumpNames();
 }

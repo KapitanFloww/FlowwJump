@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.ChatColor;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 
@@ -32,6 +35,11 @@ public class JumpLocation {
     private Integer x;
     private Integer y;
     private Integer z;
+
+    public Component toClickableLink() {
+        final var tpEvent = ClickEvent.runCommand("tp %s %s %s".formatted(x, y + 0.5, z));
+        return Component.text(ChatColor.YELLOW + "[%s, %s, %s]".formatted(x, y, z)).clickEvent(tpEvent);
+    }
 
     public static JumpLocation fromBlock(Block block) {
         return new JumpLocation()
@@ -59,6 +67,4 @@ public class JumpLocation {
                 .formatted(block.getType(), Stream.of(Tag.PRESSURE_PLATES.getValues(), Tag.BUTTONS.getValues())
                         .collect(Collectors.toSet())));
     }
-
-
 }
