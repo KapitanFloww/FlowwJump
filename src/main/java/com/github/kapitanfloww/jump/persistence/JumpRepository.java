@@ -9,6 +9,8 @@ public interface JumpRepository {
 
     Jump save(Jump jump);
 
+    Jump merge(Jump jump);
+
     Optional<Jump> find(String name);
 
     Set<Jump> findAll();

@@ -48,6 +48,7 @@ public class JumpService {
             case CHECKPOINT -> jump.addCheckpoints(newLocation); // can have multiple checkpoints
         }
         log.info("Added location %s to jump \"%s\"".formatted(type, jump));
+        repository.merge(jump);
     }
 
     public void removeCheckpointForJump(String jumpName, Block location) {
@@ -62,6 +63,7 @@ public class JumpService {
                     throw new IllegalArgumentException("Location unknown to jump \"%s\"".formatted(jumpName));
                 }
         );
+        repository.merge(jump);
     }
 
     public Jump getJump(String jumpName) {

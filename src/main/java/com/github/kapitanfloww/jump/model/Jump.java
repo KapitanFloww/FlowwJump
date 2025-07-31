@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +21,10 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Jump {
+public class Jump implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 10001;
 
     private UUID id;
 

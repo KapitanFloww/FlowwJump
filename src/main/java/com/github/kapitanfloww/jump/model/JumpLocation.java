@@ -12,6 +12,8 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.block.Block;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,7 +24,10 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class JumpLocation {
+public class JumpLocation implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 10001;
 
     private UUID id;
 

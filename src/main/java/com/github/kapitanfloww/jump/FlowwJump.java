@@ -1,11 +1,12 @@
 package com.github.kapitanfloww.jump;
 
-import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
+import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerStartJumpListener;
 import com.github.kapitanfloww.jump.model.JumpLocation;
 import com.github.kapitanfloww.jump.model.JumpLocationType;
+import com.github.kapitanfloww.jump.persistence.FileBasedInMemoryJumpRepository;
 import com.github.kapitanfloww.jump.persistence.InMemoryJumpRepository;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
@@ -16,6 +17,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -25,7 +27,13 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+@Log
 public final class FlowwJump extends JavaPlugin {
+    private static final String path = "data";
 
     private JumpService jumpService;
     private JumpLocationService jumpLocationService;
@@ -34,7 +42,22 @@ public final class FlowwJump extends JavaPlugin {
     @Override
     public void onEnable() {
         // Register plugin logic
-        jumpService = new JumpService(new InMemoryJumpRepository());
+        try {
+            if (getDataFolder().mkdirs()) {
+                log.info("Data folder created");
+            }
+            final var dataFile = new File(getDataPath().toFile(), path);
+            if (!dataFile.exists()) {
+                Files.createFile(dataFile.toPath());
+                log.info("Data file created");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        final var repository = new FileBasedInMemoryJumpRepository(path, new InMemoryJumpRepository());
+        repository.loadFromFile();
+
+        jumpService = new JumpService(repository);
         jumpLocationService = new JumpLocationService(jumpService, Bukkit::getWorld);
         jumpPlayerService = new JumpPlayerService();
 

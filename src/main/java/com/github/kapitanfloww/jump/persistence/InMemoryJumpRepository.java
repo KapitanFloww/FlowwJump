@@ -21,6 +21,18 @@ public class InMemoryJumpRepository implements JumpRepository {
     }
 
     @Override
+    public Jump merge(Jump jump) {
+        if (jumps.stream().noneMatch(it -> it.getId().equals(jump.getId()))) {
+            throw new IllegalStateException("Jump not yet persisted");
+        }
+
+        // Replace the jump
+        jumps.removeIf(it -> it.getId().equals(jump.getId()));
+        jumps.add(jump);
+        return jump;
+    }
+
+    @Override
     public Optional<Jump> find(String name) {
         return jumps.stream()
                 .filter(jump -> Objects.equals(jump.getName(), name))
