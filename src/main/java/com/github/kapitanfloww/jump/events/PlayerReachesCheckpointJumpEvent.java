@@ -1,6 +1,7 @@
 package com.github.kapitanfloww.jump.events;
 
 import com.github.kapitanfloww.jump.model.Jump;
+import com.github.kapitanfloww.jump.model.JumpLocation;
 import lombok.Getter;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -17,9 +18,9 @@ public class PlayerReachesCheckpointJumpEvent extends Event {
 
     private final Jump jump;
     private final Player player;
-    private final Block checkpoint;
+    private final JumpLocation checkpoint;
 
-    public PlayerReachesCheckpointJumpEvent(Jump jump, Player player, Block checkpoint) {
+    public PlayerReachesCheckpointJumpEvent(Jump jump, Player player, JumpLocation checkpoint) {
         this.jump = Objects.requireNonNull(jump);
         this.player = Objects.requireNonNull(player);
         this.checkpoint = Objects.requireNonNull(checkpoint);

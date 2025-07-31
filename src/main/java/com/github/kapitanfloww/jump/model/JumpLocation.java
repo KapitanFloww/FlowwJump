@@ -12,6 +12,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.block.Block;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @With
@@ -43,6 +44,14 @@ public class JumpLocation {
                 && block.getY() == this.y
                 && block.getZ() == this.z
                 && block.getWorld().getName().equals(worldName);
+    }
+
+    public boolean matches(JumpLocation location) {
+        return location != null
+                && Objects.equals(location.getX(), this.x)
+                && Objects.equals(location.getY(), this.y)
+                && Objects.equals(location.getZ(), this.z)
+                && Objects.equals(location.getWorldName(), worldName);
     }
 
     public static JumpLocation fromBlock(Block block) {

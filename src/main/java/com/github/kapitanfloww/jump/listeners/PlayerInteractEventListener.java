@@ -3,6 +3,7 @@ package com.github.kapitanfloww.jump.listeners;
 import com.github.kapitanfloww.jump.events.PlayerFinishJumpEvent;
 import com.github.kapitanfloww.jump.events.PlayerReachesCheckpointJumpEvent;
 import com.github.kapitanfloww.jump.events.PlayerStartJumpEvent;
+import com.github.kapitanfloww.jump.model.JumpLocation;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -56,7 +57,7 @@ public class PlayerInteractEventListener implements Listener {
         switch (type) {
             case START -> pluginManager.callEvent(new PlayerStartJumpEvent(jump, event.getPlayer())); // start the jump
             case FINISH -> pluginManager.callEvent(new PlayerFinishJumpEvent(jump, event.getPlayer())); // finish the jump
-            case CHECKPOINT -> pluginManager.callEvent(new PlayerReachesCheckpointJumpEvent(jump, event.getPlayer(), event.getClickedBlock())); // set last checkpoint
+            case CHECKPOINT -> pluginManager.callEvent(new PlayerReachesCheckpointJumpEvent(jump, event.getPlayer(), JumpLocation.fromBlock(event.getClickedBlock()))); // set last checkpoint
             case RESET -> {} // do nothing
         }
     }

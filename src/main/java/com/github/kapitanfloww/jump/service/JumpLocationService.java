@@ -22,6 +22,9 @@ public class JumpLocationService {
     public Pair<JumpLocationType, Jump> getJumpForBlock(Block block) {
         final var jumps = jumpService.getAll();
         for (Jump jump : jumps) {
+            if (!jump.isSetupComplete()) {
+                continue;
+            }
             if (jump.getStart().matches(block)) {
                 return Pair.of(JumpLocationType.START, jump);
             }

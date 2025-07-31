@@ -19,6 +19,7 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -38,14 +39,14 @@ public final class FlowwJump extends JavaPlugin {
         jumpPlayerService = new JumpPlayerService();
 
         // Register commands
-        var commandTree = getCommandTree();
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(commandTree));
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(getJumpCommandTree())); // /jump
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(getCheckpointTree())); // /checkpoint
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(getServer().getPluginManager(), jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerStartJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(jumpPlayerService, jumpLocationService), this);
-        getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(jumpPlayerService), this);
     }
 
     @Override
@@ -53,7 +54,28 @@ public final class FlowwJump extends JavaPlugin {
 
     }
 
-    private LiteralCommandNode<CommandSourceStack> getCommandTree() {
+    private LiteralCommandNode<CommandSourceStack> getCheckpointTree() {
+        return Commands.literal("checkpoint")
+                .requires(source -> source.getSender() instanceof Player)
+                .executes(ctx -> {
+                    final var player = (Player) ctx.getSource().getSender();
+                    final var checkpoint = jumpPlayerService.getCheckpoint(player);
+
+                    if (checkpoint == null) {
+                        player.sendMessage(Component.text("You have not reached any checkpoints yet", NamedTextColor.RED));
+                        return Command.SINGLE_SUCCESS; // no checkpoints
+                    }
+
+                    player.teleport(jumpLocationService.toLocation(checkpoint));
+                    player.playSound(player.getLocation(), Sound.ENTITY_PARROT_FLY, 1.0f, 1.0f);
+                    player.sendMessage(Component.text("You have been teleported back to your last checkpoint", NamedTextColor.GREEN));
+
+                    return Command.SINGLE_SUCCESS;
+                })
+                .build();
+    }
+
+    private LiteralCommandNode<CommandSourceStack> getJumpCommandTree() {
         // Setup commands
         var root = Commands.literal("jump")
                 .executes(ctx -> {
@@ -135,11 +157,9 @@ public final class FlowwJump extends JavaPlugin {
                             final var jumps = jumpService.getAll();
                             sender.sendMessage(Component.text("The following jumps are known: ", NamedTextColor.YELLOW));
                             jumps.forEach(it -> sender.sendMessage(
-                                    Component.text("Jump ", NamedTextColor.YELLOW).append(
-                                            Component.text(it.getName(), NamedTextColor.GOLD).append(
-                                                    Component.text(" starting at ", NamedTextColor.YELLOW).append(
-                                                            it.getStart().toTeleportComponent()
-                                                    )
+                                    Component.text(it.getName(), NamedTextColor.GOLD).append(
+                                            Component.text(" starting at ", NamedTextColor.YELLOW).append(
+                                                    it.getStart().toTeleportComponent()
                                             )
                                     )
                             ));
