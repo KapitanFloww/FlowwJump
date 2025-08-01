@@ -18,12 +18,15 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.extern.java.Log;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -165,11 +168,11 @@ public final class FlowwJump extends JavaPlugin {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
                                     final var jump = jumpService.getJump(jumpName);
                                     sender.sendMessage(Component.text("Info about jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
-                                    sender.sendMessage(Component.text("Start: ", NamedTextColor.GRAY).append(jump.getStart() != null ? jump.getStart().toTeleportComponent() : Component.text("-- Start not set --")));
-                                    sender.sendMessage(Component.text("Finish: ", NamedTextColor.GRAY).append(jump.getFinish() != null ? jump.getFinish().toTeleportComponent() : Component.text("-- Finish not set --")));
-                                    sender.sendMessage(Component.text("Reset: ", NamedTextColor.GRAY).append(jump.getReset() != null ? jump.getReset().toTeleportComponent() : Component.text("-- Reset not set --")));
+                                    sender.sendMessage(Component.text("Start: ", NamedTextColor.GRAY).append(jump.getStart() != null ? jump.getStart().toComponent(getTeleportCallback(jump.getStart(), sender)) : Component.text("-- Start not set --")));
+                                    sender.sendMessage(Component.text("Finish: ", NamedTextColor.GRAY).append(jump.getFinish() != null ? jump.getFinish().toComponent(getTeleportCallback(jump.getFinish(), sender)) : Component.text("-- Finish not set --")));
+                                    sender.sendMessage(Component.text("Reset: ", NamedTextColor.GRAY).append(jump.getReset() != null ? jump.getReset().toComponent(getTeleportCallback(jump.getReset(), sender)) : Component.text("-- Reset not set --")));
                                     sender.sendMessage(Component.text("Checkpoints:", NamedTextColor.YELLOW));
-                                    jump.getCheckpoints().stream().map(JumpLocation::toTeleportComponent).forEach(sender::sendMessage);
+                                    jump.getCheckpoints().stream().map(it -> it.toComponent(getTeleportCallback(it, sender))).forEach(sender::sendMessage);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -182,7 +185,7 @@ public final class FlowwJump extends JavaPlugin {
                             jumps.forEach(it -> sender.sendMessage(
                                     Component.text(it.getName(), NamedTextColor.GOLD).append(
                                             Component.text(" starting at ", NamedTextColor.YELLOW).append(
-                                                    it.getStart().toTeleportComponent()
+                                                    it.getStart().toComponent(getTeleportCallback(it.getStart(), sender))
                                             )
                                     )
                             ));
@@ -324,7 +327,7 @@ public final class FlowwJump extends JavaPlugin {
                                                     .append(Component.text(jumpName, NamedTextColor.GOLD))
                                                     .append(Component.text(":", NamedTextColor.YELLOW))
                                             );
-                                            checkPoints.forEach(it -> sender.sendMessage(it.toTeleportComponent()));
+                                            checkPoints.forEach(it -> sender.sendMessage(it.toComponent(getTeleportCallback(it, sender))));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -358,6 +361,14 @@ public final class FlowwJump extends JavaPlugin {
                 )
                 .build();
         return root;
+    }
+
+    private ClickCallback<Audience> getTeleportCallback(JumpLocation it, CommandSender sender) {
+        return audience -> {
+            if (sender instanceof Player player) {
+                player.teleport(jumpLocationService.toLocation(it));
+            }
+        };
     }
 
     private static boolean isInvalidMaterial(Block targetBlock) {

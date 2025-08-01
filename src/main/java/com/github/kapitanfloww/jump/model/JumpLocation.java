@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.block.Block;
 
@@ -38,9 +41,11 @@ public class JumpLocation implements Serializable {
     private Integer z;
     private String worldName;
 
-    public Component toTeleportComponent() {
-        final var tpEvent = ClickEvent.runCommand("tp %s %s %s".formatted(x, y + 0.5, z));
-        return Component.text("[%s, %s, %s]".formatted(x, y, z), NamedTextColor.GOLD).clickEvent(tpEvent);
+    public Component toComponent(ClickCallback<Audience> clickCallback) {
+        final var hoverEvent = HoverEvent.showText(Component.text("Click to teleport", NamedTextColor.GOLD));
+        return Component.text("[%s, %s, %s]".formatted(x, y, z), NamedTextColor.GOLD)
+                .hoverEvent(hoverEvent)
+                .clickEvent(ClickEvent.callback(clickCallback));
     }
 
     public boolean matches(Block block) {
