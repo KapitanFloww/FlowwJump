@@ -4,11 +4,9 @@ import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.model.JumpLocation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +38,6 @@ public class JumpPlayerService {
             player.sendMessage(Component.text("You are not registered in a jump", NamedTextColor.RED));
             return null;
         }
-        return playerCheckpointMap.getOrDefault(player.getUniqueId(), null);
+        return playerCheckpointMap.getOrDefault(player.getUniqueId(), currentJump.getStart());
     }
 }
