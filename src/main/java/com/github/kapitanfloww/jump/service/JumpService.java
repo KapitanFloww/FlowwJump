@@ -22,7 +22,7 @@ public class JumpService {
         this.repository = Objects.requireNonNull(repository);
     }
 
-    public void createJump(String jumpName, Block start) {
+    public Jump createJump(String jumpName, Block start) {
         // Check if jump with the name exists
         if (findJump(jumpName).isPresent()) {
             throw new IllegalArgumentException("Jump with name \"%s\" already exists".formatted(jumpName));
@@ -36,9 +36,10 @@ public class JumpService {
 
         repository.save(jump);
         log.info("Created jump %s".formatted(jump));
+        return jump;
     }
 
-    public void addLocationToJump(String jumpName, JumpLocationType type, Block location) {
+    public Jump addLocationToJump(String jumpName, JumpLocationType type, Block location) {
         final var jump = getJump(jumpName);
         final var newLocation = JumpLocation.fromBlock(location);
         switch (type) {
@@ -49,6 +50,7 @@ public class JumpService {
         }
         log.info("Added location %s to jump \"%s\"".formatted(type, jump));
         repository.merge(jump);
+        return jump;
     }
 
     public void removeCheckpointForJump(String jumpName, Block location) {
@@ -79,9 +81,10 @@ public class JumpService {
         return repository.findAll();
     }
 
-    public void deleteJump(String jumpName) {
+    public Jump deleteJump(String jumpName) {
         final var jump = getJump(jumpName);
         repository.delete(jump);
+        return jump;
     }
 
     public List<JumpLocation> getCheckpointsForJump(String jumpName) {

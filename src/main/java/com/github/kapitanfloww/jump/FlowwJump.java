@@ -1,5 +1,6 @@
 package com.github.kapitanfloww.jump;
 
+import com.github.kapitanfloww.jump.holograms.JumpHologramManager;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
@@ -14,6 +15,7 @@ import com.github.kapitanfloww.jump.service.JumpService;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -41,6 +43,8 @@ public final class FlowwJump extends JavaPlugin {
     private JumpService jumpService;
     private JumpLocationService jumpLocationService;
     private JumpPlayerService jumpPlayerService;
+
+    private JumpHologramManager jumpHologramManager; // Must be initialized later
 
     @Override
     public void onEnable() {
@@ -108,6 +112,7 @@ public final class FlowwJump extends JavaPlugin {
                     final var sender = ctx.getSource().getSender();
                     sender.sendMessage(Component.text("--- Jump Help ---", NamedTextColor.YELLOW));
                     sender.sendMessage(Component.text("/jump cancel", NamedTextColor.YELLOW));
+
                     sender.sendMessage(Component.text("Cancel your current current jump", NamedTextColor.GRAY));
                     sender.sendMessage(Component.text("/jump create <name>", NamedTextColor.YELLOW));
                     sender.sendMessage(Component.text("Creates a new jump with the given name. With start location on target block", NamedTextColor.GRAY));
@@ -150,8 +155,38 @@ public final class FlowwJump extends JavaPlugin {
                                         return Command.SINGLE_SUCCESS;
                                     }
 
-                                    jumpService.createJump(jumpName, targetBlock);
+                                    final var jump = jumpService.createJump(jumpName, targetBlock);
                                     player.sendMessage(Component.text("Created jump \"%s\"".formatted(jumpName), NamedTextColor.YELLOW));
+
+                                    // Create hologram
+                                    try {
+                                        getJumpHologramManager().createHologram(jump);
+                                        player.sendMessage(Component.text("Created Hologram for jump " + jump.getName(), NamedTextColor.GREEN));
+                                    } catch (IllegalArgumentException ex) {
+                                        player.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+                                    }
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("holograms")
+                        .then(Commands.literal("reload")
+                                .executes(ctx -> {
+                                    final var sender = ctx.getSource().getSender();
+                                    try {
+                                        final var hologramManager = getJumpHologramManager();
+                                        final var jumps = jumpService.getAll();
+                                        jumps.forEach(it -> {
+                                            if (hologramManager.getHologram(it).isEmpty()) {
+                                                hologramManager.createHologram(it);
+                                                sender.sendMessage(Component.text("Created Hologram for jump " + it.getName(), NamedTextColor.GREEN));
+                                            }
+                                        });
+                                        sender.sendMessage(Component.text("Hologram reload complete", NamedTextColor.GREEN));
+                                    } catch (IllegalArgumentException ex) {
+                                        sender.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+                                    }
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -202,11 +237,19 @@ public final class FlowwJump extends JavaPlugin {
                                 })
                                 .executes(ctx -> {
                                     final var jumpName = StringArgumentType.getString(ctx, "name");
-                                    jumpService.deleteJump(jumpName);
+                                    final var jump = jumpService.deleteJump(jumpName);
                                     final var sender = ctx.getSource().getSender();
                                     sender.sendMessage(Component
                                             .text("Deleted jump ", NamedTextColor.YELLOW)
                                             .append(Component.text(jumpName, NamedTextColor.GOLD)));
+
+                                    // Remove Hologram
+                                    try {
+                                        getJumpHologramManager().removeHologram(jump);
+                                    } catch (IllegalArgumentException ex) {
+                                        sender.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+                                    }
+
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -230,10 +273,18 @@ public final class FlowwJump extends JavaPlugin {
                                                 return Command.SINGLE_SUCCESS;
                                             }
 
-                                            jumpService.addLocationToJump(jumpName, JumpLocationType.START, targetBlock);
+                                            final var jump = jumpService.addLocationToJump(jumpName, JumpLocationType.START, targetBlock);
                                             player.sendMessage(Component
                                                     .text("Set start-location for jump ", NamedTextColor.YELLOW)
                                                     .append(Component.text(jumpName, NamedTextColor.GOLD)));
+
+                                            try {
+                                                // Move Hologram
+                                                getJumpHologramManager().moveHologram(jump);
+                                            } catch (IllegalArgumentException ex) {
+                                                player.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+                                            }
+
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 ))
@@ -361,6 +412,20 @@ public final class FlowwJump extends JavaPlugin {
                 )
                 .build();
         return root;
+    }
+
+    private JumpHologramManager getJumpHologramManager() {
+        try {
+            if (!FancyHologramsPlugin.isEnabled()) {
+                throw new IllegalArgumentException("FancyHolograms is not enabled! Skipping integration.");
+            }
+            if (jumpHologramManager == null) {
+                jumpHologramManager = new JumpHologramManager(jumpLocationService, FancyHologramsPlugin.get().getHologramManager());
+            }
+            return jumpHologramManager;
+        } catch (NoClassDefFoundError ex) {
+            throw new IllegalArgumentException("FancyHolograms is not on the plugins list. Disabling integration");
+        }
     }
 
     private ClickCallback<Audience> getTeleportCallback(JumpLocation it, CommandSender sender) {
