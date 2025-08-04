@@ -39,7 +39,7 @@ public class CheckpointCommand {
             return Command.SINGLE_SUCCESS; // no checkpoints
         }
 
-        player.teleport(jumpLocationService.toLocation(checkpoint));
+        player.teleport(jumpLocationService.toLocation(checkpoint, true));
         player.playSound(player.getLocation(), Sound.ENTITY_PARROT_FLY, 1.0f, 1.0f);
         player.sendMessage(Component.text("You have been teleported back to your last checkpoint", NamedTextColor.GREEN));
 

@@ -32,7 +32,7 @@ public class JumpHologramManager {
         if (getHologram(jump).isPresent()) {
             throw new IllegalArgumentException("Hologram with that name already exist!");
         }
-        final var location = locationService.toLocation(jump.getStart()).add(0.5, 1.5, 0.5);
+        final var location = locationService.toLocation(jump.getStart(), false).add(0.5, 1.5, 0.5);
         final var hologramData = new TextHologramData(NAME_PATTERN.formatted(jump.getName()), location);
         hologramData.setBackground(Color.fromBGR(100, 255, 79));
         hologramData.setBillboard(Display.Billboard.CENTER);
@@ -61,7 +61,7 @@ public class JumpHologramManager {
         final var hologram = optionalHologram.get();
         final var hologramData = hologram.getData();
 
-        final var location = locationService.toLocation(jump.getStart()).add(0.5, 1.5, 0.5);
+        final var location = locationService.toLocation(jump.getStart(), false).add(0.5, 1.5, 0.5);
         hologramData.setLocation(location);
 
         hologram.forceUpdate();

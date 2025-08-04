@@ -38,7 +38,7 @@ public class PlayerFinishJumpListener implements Listener {
             return;
         }
 
-        final var resetLocation = jumpLocationService.toLocation(jump.getReset());
+        final var resetLocation = jumpLocationService.toLocation(jump.getReset(), false);
         player.teleport(resetLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         player.sendMessage(Component.text("Congratulations, you've mastered jump ", NamedTextColor.GREEN).append(Component.text(jump.getName(), NamedTextColor.GOLD)));

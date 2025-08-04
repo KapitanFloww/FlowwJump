@@ -41,7 +41,12 @@ public class JumpLocationService {
         return null;
     }
 
-    public Location toLocation(JumpLocation jumpLocation) {
-        return new Location(worldResolver.getWorld(jumpLocation.getWorldName()), jumpLocation.getX(), jumpLocation.getY() + 1, jumpLocation.getZ());
+    public Location toLocation(JumpLocation jumpLocation, boolean isCheckpoint) {
+        // Checkpoints are always on pressure plate - so no need to increment Y
+        double yModifier = 0.0;
+        if (!isCheckpoint) {
+            yModifier = 1.0;
+        }
+        return new Location(worldResolver.getWorld(jumpLocation.getWorldName()), (jumpLocation.getX() + 0.5), (jumpLocation.getY() + yModifier), (jumpLocation.getZ() + 0.5));
     }
 }

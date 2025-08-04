@@ -380,7 +380,7 @@ public class JumpCommand {
     private static ClickCallback<Audience> getTeleportCallback(JumpLocationService jumpLocationService, JumpLocation location, CommandSender sender) {
         return audience -> {
             if (sender instanceof Player player) {
-                player.teleport(jumpLocationService.toLocation(location));
+                player.teleport(jumpLocationService.toLocation(location, false));
             }
         };
     }
