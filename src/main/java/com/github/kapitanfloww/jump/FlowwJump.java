@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump;
 
 import com.github.kapitanfloww.jump.commands.CheckpointCommand;
 import com.github.kapitanfloww.jump.commands.JumpCommand;
+import com.github.kapitanfloww.jump.listeners.PlayerDeathListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
@@ -60,6 +61,7 @@ public final class FlowwJump extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerStartJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(jumpPlayerService, jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(jumpPlayerService), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(jumpPlayerService, jumpLocationService), this);
 
         log.info("Enabled FlowwJump");
     }
