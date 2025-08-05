@@ -13,6 +13,7 @@ import com.github.kapitanfloww.jump.persistence.InMemoryJumpRepository;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
 import com.github.kapitanfloww.jump.service.JumpService;
+import com.github.kapitanfloww.jump.service.TimerService;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.extern.java.Log;
 import org.bukkit.Bukkit;
@@ -30,6 +31,7 @@ public final class FlowwJump extends JavaPlugin {
     private JumpService jumpService;
     private JumpLocationService jumpLocationService;
     private JumpPlayerService jumpPlayerService;
+    private TimerService timerService;
 
     @Override
     public void onEnable() {
@@ -51,7 +53,8 @@ public final class FlowwJump extends JavaPlugin {
 
         jumpService = new JumpService(repository);
         jumpLocationService = new JumpLocationService(jumpService, Bukkit::getWorld);
-        jumpPlayerService = new JumpPlayerService();
+        timerService = new TimerService(this, Bukkit.getScheduler());
+        jumpPlayerService = new JumpPlayerService(timerService);
 
         // Register commands
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(JumpCommand.createCommand(jumpService, jumpLocationService, jumpPlayerService).build())); // /jump
@@ -70,6 +73,7 @@ public final class FlowwJump extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        timerService.cancelAllTasks();
         log.info("Disabled FlowwJump");
     }
 }
