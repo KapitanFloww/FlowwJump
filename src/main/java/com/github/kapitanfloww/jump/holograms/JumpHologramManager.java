@@ -1,12 +1,15 @@
 package com.github.kapitanfloww.jump.holograms;
 
 import com.github.kapitanfloww.jump.model.Jump;
+import com.github.kapitanfloww.jump.score.Score;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
+import com.github.kapitanfloww.jump.util.PlayerResolver;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
 import lombok.extern.java.Log;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 
@@ -17,12 +20,16 @@ import java.util.Optional;
 @Log
 public class JumpHologramManager {
 
+    private static JumpHologramManager singleton;
+
     private static final String NAME_PATTERN = "floww_jump_%s";
 
+    private final PlayerResolver playerResolver;
     private final JumpLocationService locationService;
     private final HologramManager hologramManager;
 
-    public JumpHologramManager(JumpLocationService locationService, HologramManager hologramManager) {
+    public JumpHologramManager(PlayerResolver playerResolver, JumpLocationService locationService, HologramManager hologramManager) {
+        this.playerResolver = Objects.requireNonNull(playerResolver);
         this.locationService = Objects.requireNonNull(locationService);
         this.hologramManager = Objects.requireNonNull(hologramManager);
     }
@@ -52,6 +59,21 @@ public class JumpHologramManager {
         log.info("Hologram %s removed".formatted(NAME_PATTERN.formatted(jump.getName())));
     }
 
+    public void updateHighScore(Jump jump, Score score) {
+        final var optionalHologram = getHologram(jump);
+        if (optionalHologram.isEmpty()) {
+            return;
+        }
+        final var hologram = optionalHologram.get();
+        final var hologramData = (TextHologramData) hologram.getData();
+        hologramData.setText(List.of(
+                "~~ Welcome to Jump: " + jump.getName() + " ~~",
+                "High-Score: %s seconds by %s".formatted(score.time(), playerResolver.getPlayer(score.playerId()).getName())));
+
+        hologram.forceUpdate();
+        hologram.queueUpdate();
+    }
+
     public void moveHologram(Jump jump) {
         final var optionalHologram = getHologram(jump);
         if (optionalHologram.isEmpty()) {
@@ -70,5 +92,19 @@ public class JumpHologramManager {
 
     public Optional<Hologram> getHologram(Jump jump) {
         return hologramManager.getHologram(NAME_PATTERN.formatted(jump.getName()));
+    }
+
+    public static JumpHologramManager getJumpHologramManager(JumpLocationService jumpLocationService) {
+        try {
+            if (!FancyHologramsPlugin.isEnabled()) {
+                throw new IllegalArgumentException("FancyHolograms is not enabled! Skipping integration.");
+            }
+            if (singleton == null) {
+                singleton = new JumpHologramManager(Bukkit::getPlayer, jumpLocationService, FancyHologramsPlugin.get().getHologramManager());
+            }
+            return singleton;
+        } catch (NoClassDefFoundError ex) {
+            throw new IllegalArgumentException("FancyHolograms is not on the plugins list. Disabling integration");
+        }
     }
 }

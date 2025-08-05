@@ -14,7 +14,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import lombok.extern.java.Log;
@@ -42,8 +41,6 @@ public class JumpCommand {
     private static final Predicate<CommandSourceStack> HAS_MAINTAIN_PERMISSION = commandSourceStack -> commandSourceStack.getSender().hasPermission(MAINTAIN_PERMISSION);
 
     private static final Predicate<CommandSourceStack> IS_PLAYER = source -> source.getSender() instanceof Player;
-
-    private static JumpHologramManager jumpHologramManager;
 
     public static LiteralArgumentBuilder<CommandSourceStack> createCommand(JumpService jumpService, JumpLocationService jumpLocationService, JumpPlayerService jumpPlayerService) {
         return Commands.literal("jump")
@@ -94,7 +91,7 @@ public class JumpCommand {
                                 .executes(ctx -> {
                                     final var sender = ctx.getSource().getSender();
                                     try {
-                                        final var hologramManager = getJumpHologramManager(jumpLocationService);
+                                        final var hologramManager = JumpHologramManager.getJumpHologramManager(jumpLocationService);
                                         final var jumps = jumpService.getAll();
                                         jumps.forEach(it -> {
                                             if (hologramManager.getHologram(it).isEmpty()) {
@@ -216,7 +213,7 @@ public class JumpCommand {
 
         // Create Hologram
         try {
-            getJumpHologramManager(jumpLocationService).createHologram(jump);
+            JumpHologramManager.getJumpHologramManager(jumpLocationService).createHologram(jump);
             player.sendMessage(Component.text("Created Hologram for jump " + jump.getName(), NamedTextColor.GREEN));
         } catch (IllegalArgumentException ex) {
             log.warning(ex.getLocalizedMessage());
@@ -265,7 +262,7 @@ public class JumpCommand {
 
         // Remove hologram
         try {
-            getJumpHologramManager(jumpLocationService).removeHologram(jump);
+            JumpHologramManager.getJumpHologramManager(jumpLocationService).removeHologram(jump);
         } catch (IllegalArgumentException ex) {
             log.warning(ex.getLocalizedMessage());
         }
@@ -291,7 +288,7 @@ public class JumpCommand {
 
         // Move Hologram
         try {
-            getJumpHologramManager(jumpLocationService).moveHologram(jump);
+            JumpHologramManager.getJumpHologramManager(jumpLocationService).moveHologram(jump);
         } catch (IllegalArgumentException ex) {
             log.warning(ex.getLocalizedMessage());
         }
@@ -396,19 +393,5 @@ public class JumpCommand {
         }
         // Verify target block is either pressure plate or button
         return !Tag.BUTTONS.isTagged(targetBlock.getType()) && !Tag.PRESSURE_PLATES.isTagged(targetBlock.getType());
-    }
-
-    private static JumpHologramManager getJumpHologramManager(JumpLocationService jumpLocationService) {
-        try {
-            if (!FancyHologramsPlugin.isEnabled()) {
-                throw new IllegalArgumentException("FancyHolograms is not enabled! Skipping integration.");
-            }
-            if (jumpHologramManager == null) {
-                jumpHologramManager = new JumpHologramManager(jumpLocationService, FancyHologramsPlugin.get().getHologramManager());
-            }
-            return jumpHologramManager;
-        } catch (NoClassDefFoundError ex) {
-            throw new IllegalArgumentException("FancyHolograms is not on the plugins list. Disabling integration");
-        }
     }
 }
