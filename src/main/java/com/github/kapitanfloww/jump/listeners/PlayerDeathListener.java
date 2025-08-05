@@ -59,7 +59,7 @@ public class PlayerDeathListener implements Listener {
         player.teleport(jumpLocationService.toLocation(checkpoint, true), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.playSound(player.getLocation(), Sound.ENTITY_PARROT_FLY, 1.0f, 1.0f);
         player.sendMessage(Component.text("You have been teleported back to your last checkpoint", NamedTextColor.GREEN));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 20, 10, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 60, 10, false, false));
 
         // Health the player to max
         final var maxHealth = Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
