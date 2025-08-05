@@ -7,13 +7,17 @@ import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
 import com.github.kapitanfloww.jump.service.JumpService;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import lombok.extern.java.Log;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
@@ -28,6 +32,7 @@ import java.util.function.Predicate;
 /**
  * Command for /jump
  */
+@Log
 public class JumpCommand {
 
     private static final String USE_PERMISSION = "floww.jump.use";
@@ -197,14 +202,13 @@ public class JumpCommand {
     }
 
     // /jump create <name>
-    private static int runCreateJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) {
+    private static int runCreateJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
 
         if (isInvalidMaterial(targetBlock)) {
-            player.sendMessage(Component.text("You must be looking at a button or pressure-plate to execute this command", NamedTextColor.RED));
-            return Command.SINGLE_SUCCESS;
+            throw new SimpleCommandExceptionType(new LiteralMessage("You must be looking at a button or pressure-plate to execute this command")).create();
         }
 
         final var jump = jumpService.createJump(jumpName, targetBlock);
@@ -215,14 +219,14 @@ public class JumpCommand {
             getJumpHologramManager(jumpLocationService).createHologram(jump);
             player.sendMessage(Component.text("Created Hologram for jump " + jump.getName(), NamedTextColor.GREEN));
         } catch (IllegalArgumentException ex) {
-            player.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+            log.warning(ex.getLocalizedMessage());
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
     // /jump info
-    private static int runInfoJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) {
+    private static int runInfoJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) throws CommandSyntaxException {
         final var sender = ctx.getSource().getSender();
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var jump = jumpService.getJump(jumpName);
@@ -251,7 +255,7 @@ public class JumpCommand {
     }
 
     // /jump delete <name>
-    private static int runDeleteJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) {
+    private static int runDeleteJumpCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var jump = jumpService.deleteJump(jumpName);
         final var sender = ctx.getSource().getSender();
@@ -263,14 +267,14 @@ public class JumpCommand {
         try {
             getJumpHologramManager(jumpLocationService).removeHologram(jump);
         } catch (IllegalArgumentException ex) {
-            sender.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+            log.warning(ex.getLocalizedMessage());
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
     // /jump set start <name>
-    private static int runSetStartCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) {
+    private static int runSetStartCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
@@ -289,14 +293,14 @@ public class JumpCommand {
         try {
             getJumpHologramManager(jumpLocationService).moveHologram(jump);
         } catch (IllegalArgumentException ex) {
-            player.sendMessage(Component.text(ex.getLocalizedMessage(), NamedTextColor.RED));
+            log.warning(ex.getLocalizedMessage());
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
     // /jump set finish <name>
-    private static int runSetFinishCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) {
+    private static int runSetFinishCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
@@ -314,7 +318,7 @@ public class JumpCommand {
     }
 
     // /jump set reset <name>
-    private static int runSetResetCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) {
+    private static int runSetResetCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
@@ -327,7 +331,7 @@ public class JumpCommand {
 
 
     // /jump checkpoints add <name>
-    private static int runCheckpointAddCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) {
+    private static int runCheckpointAddCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
@@ -346,7 +350,7 @@ public class JumpCommand {
 
 
     // /jump checkpoints add <name>
-    private static int runCheckpointListCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) {
+    private static int runCheckpointListCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, JumpLocationService jumpLocationService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var sender = ctx.getSource().getSender();
         final var checkPoints = jumpService.getCheckpointsForJump(jumpName);
@@ -360,7 +364,7 @@ public class JumpCommand {
     }
 
     // /jump checkpoints delete
-    private static int runCheckpointDeleteCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) {
+    private static int runCheckpointDeleteCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService) throws CommandSyntaxException {
         final var jumpName = StringArgumentType.getString(ctx, "name");
         final var player = (Player) ctx.getSource().getSender();
         final var targetBlock = player.getTargetBlockExact(10);
