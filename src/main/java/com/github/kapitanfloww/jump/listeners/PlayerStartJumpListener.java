@@ -26,9 +26,15 @@ public class PlayerStartJumpListener implements Listener {
         // Check if player is already doing another jump
         final var currentPlayerJump = jumpPlayerService.getCurrentJumpFor(player);
         if (currentPlayerJump != null) {
+
+            // If it is the same jump, reset the timer
             if (currentPlayerJump.getId().equals(jump.getId())) {
+                jumpPlayerService.resetTimer(player);
+                player.sendMessage(Component.text("Reset timer for jump %s".formatted(currentPlayerJump.getName()), NamedTextColor.GRAY));
                 return;
             }
+
+            // Else display a message
             player.sendMessage(Component.text("You are already doing the jump %s. Please finish this jump before starting a new one or cancel your current jump with /jump cancel.".formatted(currentPlayerJump.getName()), NamedTextColor.RED));
             return;
         }
