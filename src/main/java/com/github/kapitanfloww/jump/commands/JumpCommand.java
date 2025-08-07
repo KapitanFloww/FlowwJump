@@ -25,6 +25,7 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.function.Predicate;
 
@@ -52,7 +53,7 @@ public class JumpCommand {
                 .then(Commands.literal("cancel")
                         .requires(IS_PLAYER)
                         .requires(HAS_USE_PERMISSION)
-                        .executes(ctx -> runCancelJumpCommand(ctx, jumpPlayerService))
+                        .executes(ctx -> runCancelJumpCommand(ctx, jumpPlayerService, jumpLocationService))
                 )
 
                 .then(Commands.literal("create")
@@ -191,9 +192,17 @@ public class JumpCommand {
     }
 
     // /jump cancel
-    private static int runCancelJumpCommand(CommandContext<CommandSourceStack> ctx, JumpPlayerService jumpPlayerService) {
+    private static int runCancelJumpCommand(CommandContext<CommandSourceStack> ctx, JumpPlayerService jumpPlayerService, JumpLocationService jumpLocationService) {
         final var player = (Player) ctx.getSource().getSender();
+
+        // Teleport player back to reset
+        final var jump = jumpPlayerService.getCurrentJumpFor(player);
+        if (jump != null) {
+            player.teleport(jumpLocationService.toLocation(jump.getReset(), false), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }
+        // Unregister player
         jumpPlayerService.unregisterPlayer(player);
+
         player.sendMessage(Component.text("Cancelled current jump", NamedTextColor.YELLOW));
         return Command.SINGLE_SUCCESS;
     }
