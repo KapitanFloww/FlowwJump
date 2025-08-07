@@ -49,4 +49,9 @@ public class JumpPlayerService {
         }
         return playerCheckpointMap.getOrDefault(player.getUniqueId(), currentJump.getStart());
     }
+
+    public void resetTimer(Player player) {
+        timerService.stop(player);
+        timerService.start(player);
+    }
 }
