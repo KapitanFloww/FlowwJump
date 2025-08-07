@@ -7,21 +7,30 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JumpPlayerService {
 
+    private final TimerService timerService;
+
     private final Map<UUID, Jump> playerJumpMap = new ConcurrentHashMap<>();
     private final Map<UUID, JumpLocation> playerCheckpointMap = new ConcurrentHashMap<>();
 
-    public void registerPlayer(Player player, Jump jump) {
-        playerJumpMap.put(player.getUniqueId(), jump);
+    public JumpPlayerService(TimerService timerService) {
+        this.timerService = Objects.requireNonNull(timerService);
     }
 
-    public void unregisterPlayer(Player player) {
+    public void registerPlayer(Player player, Jump jump) {
+        playerJumpMap.put(player.getUniqueId(), jump);
+        timerService.start(player);
+    }
+
+    public long unregisterPlayer(Player player) {
         playerJumpMap.remove(player.getUniqueId());
         playerCheckpointMap.remove(player.getUniqueId());
+        return timerService.stop(player);
     }
 
     public Jump getCurrentJumpFor(Player player) {
