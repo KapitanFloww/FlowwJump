@@ -1,5 +1,6 @@
 package com.github.kapitanfloww.jump.service;
 
+import com.github.kapitanfloww.jump.item.ItemManager;
 import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.model.JumpLocation;
 import net.kyori.adventure.text.Component;
@@ -25,11 +26,21 @@ public class JumpPlayerService {
     public void registerPlayer(Player player, Jump jump) {
         playerJumpMap.put(player.getUniqueId(), jump);
         timerService.start(player);
+
+        // Give player the checkpoint item
+        final var checkpointItem = ItemManager.getCheckpointItem();
+        player.getInventory().setItemInMainHand(checkpointItem);
     }
 
     public long unregisterPlayer(Player player) {
         playerJumpMap.remove(player.getUniqueId());
         playerCheckpointMap.remove(player.getUniqueId());
+
+        // Remove item
+        while (player.getInventory().contains(ItemManager.getCheckpointItem())) {
+            player.getInventory().removeItem(ItemManager.getCheckpointItem());
+        }
+
         return timerService.stop(player);
     }
 
