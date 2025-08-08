@@ -6,6 +6,7 @@ import com.github.kapitanfloww.jump.listeners.PlayerDeathListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFoodListener;
 import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
+import com.github.kapitanfloww.jump.listeners.PlayerInventoryListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerStartJumpListener;
 import com.github.kapitanfloww.jump.persistence.FileBasedInMemoryJumpRepository;
@@ -77,6 +78,7 @@ public final class FlowwJump extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(jumpPlayerService, jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerFoodListener(), this); // Disable hunger
+        getServer().getPluginManager().registerEvents(new PlayerInventoryListener(jumpPlayerService, jumpLocationService), this); // Disable hunger
 
         log.info("Enabled FlowwJump");
     }

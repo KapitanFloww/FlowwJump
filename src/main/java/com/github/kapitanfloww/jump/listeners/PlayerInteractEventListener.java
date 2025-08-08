@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Tag;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -26,7 +27,7 @@ public class PlayerInteractEventListener implements Listener {
         this.jumpLocationService = Objects.requireNonNull(jumpLocationService);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST) // we need to get this called before PlayerInventoryListener
     public void onPlayerInteraction(PlayerInteractEvent event) {
         // Check if player performed right-click
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.PHYSICAL) {
@@ -34,7 +35,9 @@ public class PlayerInteractEventListener implements Listener {
         }
 
         // Check if player clicked a button
-        final var interactedMaterial = event.getClickedBlock().getType();
+        final var interactedBlock = event.getClickedBlock();
+        if (interactedBlock == null) return;
+        final var interactedMaterial = interactedBlock.getType();
         if (!Tag.BUTTONS.isTagged(interactedMaterial) && !Tag.PRESSURE_PLATES.isTagged(interactedMaterial)) {
             return; // Not a button click
         }
