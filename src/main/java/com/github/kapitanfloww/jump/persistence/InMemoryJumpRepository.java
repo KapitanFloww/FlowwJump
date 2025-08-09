@@ -3,7 +3,6 @@ package com.github.kapitanfloww.jump.persistence;
 import com.github.kapitanfloww.jump.model.Jump;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class InMemoryJumpRepository implements JumpRepository {
     @Override
     public Optional<Jump> find(String name) {
         return jumps.stream()
-                .filter(jump -> Objects.equals(jump.getName(), name))
+                .filter(jump -> jump.getName().equalsIgnoreCase(name))
                 .findFirst();
     }
 

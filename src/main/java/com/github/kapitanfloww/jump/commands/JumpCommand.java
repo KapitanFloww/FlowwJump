@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.PluginManager;
 
+import java.util.Locale;
 import java.util.function.Predicate;
 
 /**
@@ -175,8 +176,10 @@ public class JumpCommand {
 
     private static SuggestionProvider<CommandSourceStack> getJumpNameSuggestions(JumpService jumpService) {
         return (context, builder) -> {
-            final var jumpNames = jumpService.getJumpNames();
-            jumpNames.forEach(builder::suggest);
+            jumpService.getJumpNames().stream()
+                    .map(it -> it.toLowerCase(Locale.ROOT))
+                    .filter(it -> it.contains(builder.getRemainingLowerCase()))
+                    .forEach(builder::suggest);
             return builder.buildFuture();
         };
     }
