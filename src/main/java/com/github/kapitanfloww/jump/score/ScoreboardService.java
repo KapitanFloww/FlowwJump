@@ -42,6 +42,11 @@ public class ScoreboardService {
         return false; // No new high-score
     }
 
+    public void resetScore(UUID jumpId) {
+        highScores.remove(jumpId);
+        serialize();
+    }
+
     public Score getHighScore(Jump jump) {
         return highScores.get(jump.getId());
     }

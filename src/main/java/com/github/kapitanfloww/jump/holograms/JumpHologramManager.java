@@ -3,33 +3,45 @@ package com.github.kapitanfloww.jump.holograms;
 import com.github.kapitanfloww.jump.model.Jump;
 import com.github.kapitanfloww.jump.score.Score;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
-import com.github.kapitanfloww.jump.util.PlayerResolver;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
 import lombok.extern.java.Log;
-import org.bukkit.Bukkit;
+import org.apache.commons.lang3.function.TriFunction;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Log
 public class JumpHologramManager {
 
     private static JumpHologramManager singleton;
 
+    /**
+     * Function to get the hologram text without score.
+     */
+    public static final Function<Jump, List<String>> DEFAULT_TEXT_FN = jump -> List.of("~~ Welcome to Jump: " + jump.getName() + " ~~");
+
+    /**
+     * Function to get the hologram text with score.
+     */
+    public static final TriFunction<Jump, Player, Score, List<String>> DEFAULT_TEXT_SCORE_FN = (jump, player, score) -> List.of(
+            "~~ Welcome to Jump: " + jump.getName() + " ~~",
+            "High-Score: %s seconds by %s".formatted(score.time(), player.getName())
+    );
+
     private static final String NAME_PATTERN = "floww_jump_%s";
 
-    private final PlayerResolver playerResolver;
     private final JumpLocationService locationService;
     private final HologramManager hologramManager;
 
-    public JumpHologramManager(PlayerResolver playerResolver, JumpLocationService locationService, HologramManager hologramManager) {
-        this.playerResolver = Objects.requireNonNull(playerResolver);
+    public JumpHologramManager(JumpLocationService locationService, HologramManager hologramManager) {
         this.locationService = Objects.requireNonNull(locationService);
         this.hologramManager = Objects.requireNonNull(hologramManager);
     }
@@ -44,7 +56,7 @@ public class JumpHologramManager {
         hologramData.setBackground(Color.fromBGR(100, 255, 79));
         hologramData.setBillboard(Display.Billboard.CENTER);
         hologramData.removeLine(0);
-        hologramData.setText(List.of("~~ Welcome to Jump: " + jump.getName() + " ~~"));
+        hologramData.setText(DEFAULT_TEXT_FN.apply(jump));
 
         final var manager = FancyHologramsPlugin.get().getHologramManager();
         final var hologram = manager.create(hologramData);
@@ -59,16 +71,14 @@ public class JumpHologramManager {
         log.info("Hologram %s removed".formatted(NAME_PATTERN.formatted(jump.getName())));
     }
 
-    public void updateHighScore(Jump jump, Score score) {
+    public void updateHologramText(Jump jump, List<String> newText) {
         final var optionalHologram = getHologram(jump);
         if (optionalHologram.isEmpty()) {
             return;
         }
         final var hologram = optionalHologram.get();
         final var hologramData = (TextHologramData) hologram.getData();
-        hologramData.setText(List.of(
-                "~~ Welcome to Jump: " + jump.getName() + " ~~",
-                "High-Score: %s seconds by %s".formatted(score.time(), playerResolver.getPlayer(score.playerId()).getName())));
+        hologramData.setText(newText);
 
         hologram.forceUpdate();
         hologram.queueUpdate();
@@ -100,7 +110,7 @@ public class JumpHologramManager {
                 throw new IllegalArgumentException("FancyHolograms is not enabled! Skipping integration.");
             }
             if (singleton == null) {
-                singleton = new JumpHologramManager(Bukkit::getPlayer, jumpLocationService, FancyHologramsPlugin.get().getHologramManager());
+                singleton = new JumpHologramManager(jumpLocationService, FancyHologramsPlugin.get().getHologramManager());
             }
             return singleton;
         } catch (NoClassDefFoundError ex) {

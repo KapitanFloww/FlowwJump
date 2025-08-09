@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump.listeners;
 
 import com.github.kapitanfloww.jump.events.PlayerFinishJumpEvent;
 import com.github.kapitanfloww.jump.holograms.JumpHologramManager;
+import com.github.kapitanfloww.jump.holograms.events.UpdateJumpHologramEvent;
 import com.github.kapitanfloww.jump.score.Score;
 import com.github.kapitanfloww.jump.score.ScoreboardService;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
@@ -13,20 +14,24 @@ import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.plugin.PluginManager;
 
 import java.util.Objects;
 
 public class PlayerFinishJumpListener implements Listener {
 
+    private final PluginManager pluginManager;
     private final PlayerResolver playerResolver;
     private final JumpPlayerService jumpPlayerService;
     private final JumpLocationService jumpLocationService;
     private final ScoreboardService scoreboardService;
 
-    public PlayerFinishJumpListener(PlayerResolver playerResolver,
+    public PlayerFinishJumpListener(PluginManager pluginManager,
+                                    PlayerResolver playerResolver,
                                     JumpPlayerService jumpPlayerService,
                                     JumpLocationService jumpLocationService,
                                     ScoreboardService scoreboardService) {
+        this.pluginManager = Objects.requireNonNull(pluginManager);
         this.playerResolver = Objects.requireNonNull(playerResolver);
         this.jumpPlayerService = Objects.requireNonNull(jumpPlayerService);
         this.jumpLocationService = Objects.requireNonNull(jumpLocationService);
@@ -65,7 +70,7 @@ public class PlayerFinishJumpListener implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 1.0f);
             player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR, 1.0f, 1.0f);
-            JumpHologramManager.getJumpHologramManager(jumpLocationService).updateHighScore(jump, score);
+            pluginManager.callEvent(new UpdateJumpHologramEvent(jump, JumpHologramManager.DEFAULT_TEXT_SCORE_FN.apply(jump, playerResolver.getPlayer(score.playerId()), score)));
             return;
         }
 

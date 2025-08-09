@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump;
 
 import com.github.kapitanfloww.jump.commands.CheckpointCommand;
 import com.github.kapitanfloww.jump.commands.JumpCommand;
+import com.github.kapitanfloww.jump.holograms.events.UpdateJumpHologramEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerDeathListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFoodListener;
@@ -68,17 +69,18 @@ public final class FlowwJump extends JavaPlugin {
         scoreboardService.loadFromFile();
 
         // Register commands
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(JumpCommand.createCommand(jumpService, jumpLocationService, jumpPlayerService).build())); // /jump
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(JumpCommand.createCommand(jumpService, jumpLocationService, jumpPlayerService, getServer().getPluginManager(), scoreboardService).build())); // /jump
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(CheckpointCommand.createCommand(jumpPlayerService, jumpLocationService).build())); // /checkpoint
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(getServer().getPluginManager(), jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerStartJumpListener(jumpPlayerService), this);
-        getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(Bukkit::getPlayer, jumpPlayerService, jumpLocationService, scoreboardService), this);
+        getServer().getPluginManager().registerEvents(new PlayerFinishJumpListener(getServer().getPluginManager(), Bukkit::getPlayer, jumpPlayerService, jumpLocationService, scoreboardService), this);
         getServer().getPluginManager().registerEvents(new PlayerReachesCheckpointJumpListener(jumpPlayerService), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(jumpPlayerService, jumpLocationService), this);
         getServer().getPluginManager().registerEvents(new PlayerFoodListener(), this); // Disable hunger
         getServer().getPluginManager().registerEvents(new PlayerInventoryListener(jumpPlayerService, jumpLocationService), this); // Disable hunger
+        getServer().getPluginManager().registerEvents(new UpdateJumpHologramEventListener(jumpLocationService), this); // Disable hunger
 
         log.info("Enabled FlowwJump");
     }

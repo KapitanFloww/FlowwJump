@@ -1,8 +1,10 @@
 package com.github.kapitanfloww.jump.commands;
 
 import com.github.kapitanfloww.jump.holograms.JumpHologramManager;
+import com.github.kapitanfloww.jump.holograms.events.UpdateJumpHologramEvent;
 import com.github.kapitanfloww.jump.model.JumpLocation;
 import com.github.kapitanfloww.jump.model.JumpLocationType;
+import com.github.kapitanfloww.jump.score.ScoreboardService;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
 import com.github.kapitanfloww.jump.service.JumpService;
@@ -26,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.plugin.PluginManager;
 
 import java.util.function.Predicate;
 
@@ -43,7 +46,7 @@ public class JumpCommand {
 
     private static final Predicate<CommandSourceStack> IS_PLAYER = source -> source.getSender() instanceof Player;
 
-    public static LiteralArgumentBuilder<CommandSourceStack> createCommand(JumpService jumpService, JumpLocationService jumpLocationService, JumpPlayerService jumpPlayerService) {
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommand(JumpService jumpService, JumpLocationService jumpLocationService, JumpPlayerService jumpPlayerService, PluginManager pluginManager, ScoreboardService scoreboardService) {
         return Commands.literal("jump")
                 .then(Commands.literal("help")
                         .requires(HAS_USE_PERMISSION)
@@ -54,6 +57,14 @@ public class JumpCommand {
                         .requires(IS_PLAYER)
                         .requires(HAS_USE_PERMISSION)
                         .executes(ctx -> runCancelJumpCommand(ctx, jumpPlayerService, jumpLocationService))
+                )
+
+                .then(Commands.literal("reset-score")
+                        .then(Commands.argument("name", StringArgumentType.string())
+                                .requires(HAS_MAINTAIN_PERMISSION)
+                                .suggests(getJumpNameSuggestions(jumpService))
+                                .executes(ctx -> runResetScoreCommand(ctx, jumpService, pluginManager, scoreboardService))
+                        )
                 )
 
                 .then(Commands.literal("create")
@@ -204,6 +215,20 @@ public class JumpCommand {
         jumpPlayerService.unregisterPlayer(player);
 
         player.sendMessage(Component.text("Cancelled current jump", NamedTextColor.YELLOW));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int runResetScoreCommand(CommandContext<CommandSourceStack> ctx, JumpService jumpService, PluginManager pluginManager, ScoreboardService scoreboardService) throws CommandSyntaxException {
+        final var jumpName = StringArgumentType.getString(ctx, "name");
+        final var jump = jumpService.getJump(jumpName);
+
+        // Remove the score
+        scoreboardService.resetScore(jump.getId());
+
+        // Update the hologram
+        pluginManager.callEvent(new UpdateJumpHologramEvent(jump, JumpHologramManager.DEFAULT_TEXT_FN.apply(jump)));
+
+        ctx.getSource().getSender().sendMessage(Component.text("Successfully reset score for jump ", NamedTextColor.GREEN).append(Component.text(jumpName, NamedTextColor.GOLD)));
         return Command.SINGLE_SUCCESS;
     }
 
