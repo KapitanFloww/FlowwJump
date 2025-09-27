@@ -2,6 +2,7 @@ package com.github.kapitanfloww.jump;
 
 import com.github.kapitanfloww.jump.commands.CheckpointCommand;
 import com.github.kapitanfloww.jump.commands.JumpCommand;
+import com.github.kapitanfloww.jump.config.FlowwJumpConfiguration;
 import com.github.kapitanfloww.jump.holograms.events.UpdateJumpHologramEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerDeathListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
@@ -37,9 +38,17 @@ public final class FlowwJump extends JavaPlugin {
     private JumpPlayerService jumpPlayerService;
     private TimerService timerService;
     private ScoreboardService scoreboardService;
+    private FlowwJumpConfiguration configuration;
 
     @Override
     public void onEnable() {
+        // Always save default config if not exists
+        saveDefaultConfig();
+        // Init configuration
+        configuration = new FlowwJumpConfiguration(getConfig());
+        final var storagebackend = configuration.getStorageType();
+        log.info("Using storage-backend: " + storagebackend);
+
         // Register plugin logic
         try {
             if (getDataFolder().mkdirs()) {

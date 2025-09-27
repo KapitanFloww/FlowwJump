@@ -1,0 +1,9 @@
+######################################################
+#                                                    #
+#          Default FlowwJump Configuration          #
+#                                                    #
+######################################################
+#
+# Storage backend to use.
+# Currently, supports 'FILE'.
+storage-backend: FILE
