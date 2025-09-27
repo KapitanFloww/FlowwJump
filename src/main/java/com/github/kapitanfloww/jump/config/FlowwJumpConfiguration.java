@@ -24,6 +24,22 @@ public class FlowwJumpConfiguration {
         return StorageBackend.valueOf(fileConfiguration.getString("storage-backend"));
     }
 
+    public String getJdbcUrl() {
+        return fileConfiguration.getString("jdbc.url");
+    }
+
+    public String getJdbcUsername() {
+        return fileConfiguration.getString("jdbc.username");
+    }
+
+    public String getJdbcPassword() {
+        return fileConfiguration.getString("jdbc.password");
+    }
+
+    public String getJdbcDataSourceClassName() {
+        return fileConfiguration.getString("jdbc.dataSourceClassName");
+    }
+
     private void validate() {
         try (final var in = new InputStreamReader(Objects.requireNonNull(FlowwJumpConfiguration.class.getResourceAsStream("/config.yml")))) {
             final var expectedConfiguration = new YamlConfiguration();

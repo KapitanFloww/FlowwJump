@@ -1,5 +1,6 @@
 package com.github.kapitanfloww.jump.persistence;
 
+import com.github.kapitanfloww.jump.config.StorageBackend;
 import com.github.kapitanfloww.jump.model.Jump;
 
 import java.util.Optional;

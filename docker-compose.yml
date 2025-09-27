@@ -1,0 +1,16 @@
+services:
+  postgres:
+    container_name: flowwjump_postgres
+    image: postgres:17-alpine
+    restart: unless-stopped
+    shm_size: 128mb
+    ports:
+      - '5432:5432'
+    volumes:
+      - flowwjump_postgres_data:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: flowwjump
+      POSTGRES_USER: flowwjump
+      POSTGRES_PASSWORD: MyPassw0rd!
+volumes:
+  flowwjump_postgres_data:

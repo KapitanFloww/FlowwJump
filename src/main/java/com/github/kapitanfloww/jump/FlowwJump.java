@@ -3,6 +3,7 @@ package com.github.kapitanfloww.jump;
 import com.github.kapitanfloww.jump.commands.CheckpointCommand;
 import com.github.kapitanfloww.jump.commands.JumpCommand;
 import com.github.kapitanfloww.jump.config.FlowwJumpConfiguration;
+import com.github.kapitanfloww.jump.config.StorageBackend;
 import com.github.kapitanfloww.jump.holograms.events.UpdateJumpHologramEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerDeathListener;
 import com.github.kapitanfloww.jump.listeners.PlayerFinishJumpListener;
@@ -11,8 +12,10 @@ import com.github.kapitanfloww.jump.listeners.PlayerInteractEventListener;
 import com.github.kapitanfloww.jump.listeners.PlayerInventoryListener;
 import com.github.kapitanfloww.jump.listeners.PlayerReachesCheckpointJumpListener;
 import com.github.kapitanfloww.jump.listeners.PlayerStartJumpListener;
-import com.github.kapitanfloww.jump.persistence.FileBasedInMemoryJumpRepository;
-import com.github.kapitanfloww.jump.persistence.InMemoryJumpRepository;
+import com.github.kapitanfloww.jump.persistence.JumpRepository;
+import com.github.kapitanfloww.jump.persistence.file.FileBasedInMemoryJumpRepository;
+import com.github.kapitanfloww.jump.persistence.file.InMemoryJumpRepository;
+import com.github.kapitanfloww.jump.persistence.sql.JdbcJumpRepository;
 import com.github.kapitanfloww.jump.score.ScoreboardService;
 import com.github.kapitanfloww.jump.service.JumpLocationService;
 import com.github.kapitanfloww.jump.service.JumpPlayerService;
@@ -67,8 +70,7 @@ public final class FlowwJump extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        final var repository = new FileBasedInMemoryJumpRepository(path, new InMemoryJumpRepository());
-        repository.loadFromFile();
+        final var repository = getStorageRepository(configuration.getStorageType());
 
         jumpService = new JumpService(repository);
         jumpLocationService = new JumpLocationService(jumpService, Bukkit::getWorld);
@@ -92,6 +94,14 @@ public final class FlowwJump extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UpdateJumpHologramEventListener(jumpLocationService), this); // Disable hunger
 
         log.info("Enabled FlowwJump");
+    }
+
+    private JumpRepository getStorageRepository(StorageBackend storageType) {
+        return switch (storageType) {
+            case FILE ->  new FileBasedInMemoryJumpRepository(path, new InMemoryJumpRepository());
+            case SQL -> new JdbcJumpRepository(configuration);
+            case null -> throw new IllegalStateException("Could not initialize storage-backend for type %s".formatted(storageType));
+        };
     }
 
     @Override

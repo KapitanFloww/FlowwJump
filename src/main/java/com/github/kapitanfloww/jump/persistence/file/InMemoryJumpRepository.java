@@ -1,6 +1,8 @@
-package com.github.kapitanfloww.jump.persistence;
+package com.github.kapitanfloww.jump.persistence.file;
 
+import com.github.kapitanfloww.jump.config.StorageBackend;
 import com.github.kapitanfloww.jump.model.Jump;
+import com.github.kapitanfloww.jump.persistence.JumpRepository;
 
 import java.util.HashSet;
 import java.util.Optional;

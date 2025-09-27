@@ -1,13 +1,11 @@
-package com.github.kapitanfloww.jump.persistence;
+package com.github.kapitanfloww.jump.persistence.file;
 
+import com.github.kapitanfloww.jump.config.StorageBackend;
 import com.github.kapitanfloww.jump.model.Jump;
+import com.github.kapitanfloww.jump.persistence.JumpRepository;
 import lombok.extern.java.Log;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -23,6 +21,7 @@ public class FileBasedInMemoryJumpRepository implements JumpRepository {
     public FileBasedInMemoryJumpRepository(String file, JumpRepository delegate) {
         this.path = Objects.requireNonNull(file);
         this.delegate = Objects.requireNonNull(delegate);
+        loadFromFile();
     }
 
     @Override
@@ -61,7 +60,7 @@ public class FileBasedInMemoryJumpRepository implements JumpRepository {
         return delegate.findAllJumpNames();
     }
 
-    public void loadFromFile() {
+    private void loadFromFile() {
         log.info("Loading jumps from data file");
         if (!Files.exists(Paths.get(path))) {
             log.warning("Data file does not exist");

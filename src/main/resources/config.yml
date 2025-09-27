@@ -5,5 +5,13 @@
 ######################################################
 #
 # Storage backend to use.
-# Currently, supports 'FILE'.
+# Currently, supports 'FILE', 'SQL'.
 storage-backend: FILE
+#
+# JDBC Settings
+# Only applicable if storage-backend is set to SQL
+jdbc:
+  url: jdbc:postgresql://localhost:5432/flowwjump
+  username: flowwjump
+  password: MyPassw0rd!
+  dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
